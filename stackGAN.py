@@ -15,7 +15,7 @@ class stackGAN():
         self.checkpoint_dir = args.checkpoint_dir
         self.result_dir = args.result_dir
         self.log_dir = args.log_dir
-        self.dataset_name = args.dataset_name
+        self.dataset_name = args.dataset
         self.augment_flag = args.augment_flag
 
         self.iteration = args.iteration
@@ -217,11 +217,11 @@ class stackGAN():
             self.lr = tf.placeholder(tf.float32, name = 'learning_rate')
             #--- Input Image ---
             img_data_class = Image_data(self.img_height, self.img_width, self.img_ch, self.dataset_path, self.augment_flag)
-            img_data_class.process()
+            img_data_class.preprocess()
 
-            self.dataset_num = len(img_data_class.imgae_list)
+            self.dataset_num = len(img_data_class.image_list)
 
-            img_and_embedding = tf.data.Dataset.from_tensor_slices((img_data_class.imgae_list, img_data_class.embedding))
+            img_and_embedding = tf.data.Dataset.from_tensor_slices((img_data_class.image_list, img_data_class.embedding))
 
             gpu_device = '/gpu:0'
             img_and_embedding = img_and_embedding.apply(shuffle_and_repeat(self.dataset_num)).apply(map_and_batch(img_data_class.image_processing, batch_size = self.batch_size, num_parallel_batches = 16, drop_remainder = True)).apply(prefetch_to_device(gpu_device, None))
@@ -230,7 +230,7 @@ class stackGAN():
             img_and_embedding_iterator = img_and_embedding.make_one_shot_iterator()
 
             self.real_img_256, self.embedding = img_and_embedding_iterator.get_next()
-            sentence_index = tf.random.uniform(shape = [], mival = 0, maxval = 10, dtype = tf.int32)
+            sentence_index = tf.random.uniform(shape = [], minval = 0, maxval = 10, dtype = tf.int32)
             self.embedding = tf.gather(self.embedding, indices = sentence_index, axis = 1) #[bs, 1024]
 
             noise = tf.random_normal(shape = [self.batch_size, self.z_dim])
@@ -309,9 +309,9 @@ class stackGAN():
             img_data_class = Image_data(self.img_height, self.img_width, self.img_ch, self.dataset_path, augment_flag = False)
             img_data_class.preprocess()
 
-            self.dataset_num = len(img_data_class.imgae_list)
+            self.dataset_num = len(img_data_class.image_list)
 
-            img_and_embedding = tf.data.Dataset.from_tensor_slices((img_data_class.imgae_list, img_data_class.embedding))
+            img_and_embedding = tf.data.Dataset.from_tensor_slices((img_data_class.image_list, img_data_class.embedding))
 
             gpu_device = '/gpu:0'
             img_and_embedding = img_and_embedding.apply(shuffle_and_repeat(self.dataset_num)).apply(map_and_batch(img_data_class.image_processing, batch_size = 5, num_parallel_batches = 16, drop_remainder = True)).apply(prefetch_to_device(gpu_device, None))
@@ -409,7 +409,7 @@ class stackGAN():
         else:
             sn = ''
         
-        return "{}_{}_{}_{}adv_{}kl{}".format(self,model_name, self.dataset_name, self.gan_type, self.adv_weight, self.kl_weight, sn)
+        return "{}_{}_{}_{}adv_{}kl{}".format(self.model_name, self.dataset_name, self.gan_type, self.adv_weight, self.kl_weight, sn)
 
 
     def save(self, checkpoint_dir, step):

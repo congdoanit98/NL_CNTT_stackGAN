@@ -5,13 +5,13 @@ from utils import *
 # parsing and configuration
 def parse_arg():
     desc = "Tensorflow implementation of StackGAN"
-    parser = argparse.ArgumentParse(description = desc)
+    parser = argparse.ArgumentParser(description = desc)
     parser.add_argument('--phase', type = str, default = 'train', choices = ('train', 'test'), help = 'phase name')
     parser.add_argument('--dataset', type = str, default = 'birds', help = 'dataset_name')
 
     parser.add_argument('--iteration', type = int, default = 500000, help = 'The number of training iterations')
-    parser,add_argument('--decay_flag', type = str2bool, default = True, help = 'The decay_flag')
-    parser,add_argument('--decay_iter', type = int, default = 100000, help = 'decay epoch')
+    parser.add_argument('--decay_flag', type = str2bool, default = True, help = 'The decay_flag')
+    parser.add_argument('--decay_iter', type = int, default = 100000, help = 'decay epoch')
 
     parser.add_argument('--batch_size', type = int, default = 32, help = 'The size of batch size for each gpu')
     parser.add_argument('--print_freq', type = int, default = 1000, help = 'The number of image_print_freq')
@@ -36,7 +36,7 @@ def parse_arg():
     parser.add_argument('--log_dir', type = str, default = 'logs', help = 'Directory name to save straining logs')
     parser.add_argument('--sample_dir', type = str, default = 'samples', help = 'Directory name to save the samples on training')
 
-    return check_args(parser.parse_arg())
+    return check_args(parser.parse_args())
 
 # checking argument
 def check_args(args):
@@ -72,7 +72,7 @@ def main():
         gan = stackGAN(sess, args)
 
         # build graph
-        gan.build_mode()
+        gan.build_model()
 
         # show network architeture
         show_all_variables()

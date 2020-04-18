@@ -18,13 +18,16 @@ class Image_data:
         self.image_path = os.path.join(dataset_path, 'images')
         self.text_path = os.path.join(dataset_path, 'text')
 
+        self.embedding_pickle = os.path.join(self.text_path, 'char-CNN-RNN-embeddings.pickle')
+        self.image_filename_pickle = os.path.join(self.text_path, 'filenames.pickle')
+
         self.image_list = []
 
     
     def image_processing(self, filename, vector):
         x = tf.read_file(filename)
         x_decode = tf.image.decode_jpeg(x, channels = self.channels, dct_method = 'INTEGER_ACCURATE')
-        img = tf.image.resize_images(x_decode, [self.img_height, img_width])
+        img = tf.image.resize_images(x_decode, [self.img_height, self.img_width])
         img = tf.cast(img, tf.float32) / 127.5 -1
 
         if self.augment_flag:
@@ -38,7 +41,7 @@ class Image_data:
 
     def preprocess(self):
         with open(self.embedding_pickle, 'rb') as f:
-            self.embedding = pickle._Unpickle(f)
+            self.embedding = pickle._Unpickler(f)
             self.embedding.encoding = 'latin1'
             self.embedding = self.embedding.load()
             self.embedding = np.array(self.embedding) #(8855, 10, 1024)

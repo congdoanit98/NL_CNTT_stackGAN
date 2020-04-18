@@ -39,13 +39,13 @@ def conv(x, channels, kernel = 4, stride = 2, pad = 0, pad_style = 'zeros', use_
                 bias = tf.get_variable("bias", [channels], initializer = tf.constant_initializer(0.0))
                 x = tf.nn.bias_add(x, bias)
         else:
-            x = tf.layers.conv2d(input = x, filter = channels, kernel_size = kernel, kernel_initializer = weight_init, kernel_regularizer = weight_regularizer, strides = stride, use_bias = use_bias)
+            x = tf.layers.conv2d(inputs = x, filters = channels, kernel_size = kernel, kernel_initializer = weight_init, kernel_regularizer = weight_regularizer, strides = stride, use_bias = use_bias)
 
         return x
     
 def fully_connected(x, units, use_bias = True, sn = False, scope = 'Linear'):
     with tf.variable_scope(scope):
-        x = flatten(x):
+        x = flatten(x)
         shape = x.get_shape().as_list()
         channels = shape[-1]
 
@@ -89,10 +89,10 @@ def up_block(x_init, channels, is_training = True, use_bias = True, sn = False, 
         return x
 
 # SAMPLING
-def up_sample(x, sample_factor = 2):
+def up_sample(x, scale_factor = 2):
     _, h, w, _ = x.get_shape().as_list()
     new_size = [h * scale_factor, w * scale_factor]
-    return tf.image.resize_nearest_neighbor(s, size = new_size)
+    return tf.image.resize_nearest_neighbor(x, size = new_size)
 
 def down_sample_avg(x, scale_factor = 2):
     return tf.layers.average_pooling2d(x, pool_size = 3, strides = scale_factor, padding = 'SAME')
@@ -102,7 +102,7 @@ def global_avg_pooling(x):
     return gap
 
 def reparametrize(mean, logvar):
-    eps = tf.random_normal(tf.shape(mean), mean = 0.0, stddev = 1.0, stype = tf.float32)
+    eps = tf.random_normal(tf.shape(mean), mean = 0.0, stddev = 1.0, dtype = tf.float32)
     return mean + tf.exp(logvar * 0.5) * eps
 
 # ACTIVATION FINCTION
